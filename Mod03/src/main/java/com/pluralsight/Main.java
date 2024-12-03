@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class Main {
+    public static Scanner scanner = new Scanner(System.in);
     public static void main(String[] args) {
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -20,20 +21,23 @@ public class Main {
         String username = args[0];
         String password = args[1];
 
-        Scanner scanner = new Scanner(System.in);
         int userInput = 0;
         do{
             System.out.println("What do you want to do?");
             System.out.println("1) Display all products");
             System.out.println("2) Display all customers");
+            System.out.println("3) Display all categories");
             System.out.println("0) Exit");
             System.out.print("Select an option: ");
             userInput = scanner.nextInt();
+            scanner.nextLine();
 
             if(userInput == 1){
                 allProduct(username, password);
             }else if(userInput == 2){
                 allCustomer(username, password);
+            }else if(userInput == 3){
+                allCategories(username, password);
             }
         }while(userInput != 0);
     }
@@ -114,8 +118,6 @@ public class Main {
                 System.out.println("Phone:            " + phone);
                 System.out.println("---------------------------");
             }
-            resultSet.close();
-            preparedStatement.close();
         }catch(SQLException e){
             e.printStackTrace();
         }
@@ -141,6 +143,51 @@ public class Main {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    public static void allCategories(String userName, String password){
+        try(
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/northwind", userName, password);
+        ){
+            try(PreparedStatement preparedStatement = connection.prepareStatement("SELECT CategoryID, CategoryName FROM northwind.Categories;");
+                ResultSet resultSet = preparedStatement.executeQuery();){
+                System.out.println("\nAll Categories");
+                while(resultSet.next()){
+                    String categoryId = resultSet.getString("CategoryID");
+                    String categoryName = resultSet.getString("CategoryName");
+                    System.out.println("Category ID:   " + categoryId);
+                    System.out.println("Category Name: " + categoryName);
+                    System.out.println("-----------------");
+                }
+            }
+
+            System.out.println("Please Enter a Category ID: ");
+            String inputCategoryId = scanner.nextLine();
+            try(PreparedStatement preparedStatement2 = connection.prepareStatement(
+                    "SELECT ProductID, ProductName, UnitPrice, UnitsInStock" +
+                        " FROM northwind.Products " +
+                        "WHERE CategoryID = ?"
+            )){
+                preparedStatement2.setInt(1, Integer.parseInt(inputCategoryId));
+
+                try(ResultSet resultSet1 = preparedStatement2.executeQuery()){
+                    while(resultSet1.next()){
+                        String productId = resultSet1.getString("ProductID");
+                        String productName = resultSet1.getString("ProductName");
+                        String unitPrice = resultSet1.getString("UnitPrice");
+                        String unitInStock = resultSet1.getString("UnitsInStock");
+
+                        System.out.println("Product ID:     " + productId);
+                        System.out.println("Product Name:   " + productName);
+                        System.out.println("Unit Price:     " + unitPrice);
+                        System.out.println("Units In Stock: " + unitInStock);
+                        System.out.println("--------------------------");
+                    }
+                }
+            }
+        }catch(SQLException e){
+            e.printStackTrace();
         }
     }
 }
