@@ -3,15 +3,16 @@ package com.pluralsight;
 import java.sql.*;
 import java.util.Scanner;
 import org.apache.commons.dbcp2.BasicDataSource;
+import javax.sql.DataSource;
 
 public class Main {
     public static Scanner scanner = new Scanner(System.in);
     public static void main(String[] args) {
-        try{
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        }catch(ClassNotFoundException e){
-            e.printStackTrace();
-        }
+//        try{
+//            Class.forName("com.mysql.cj.jdbc.Driver");
+//        }catch(ClassNotFoundException e){
+//            e.printStackTrace();
+//        }
 
         if(args.length != 2){
             System.out.println(
@@ -21,6 +22,11 @@ public class Main {
         }
         String username = args[0];
         String password = args[1];
+
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setUrl("jdbc:mysql://localhost:3306/northwind");
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
 
         int userInput = 0;
         do{
@@ -34,78 +40,43 @@ public class Main {
             scanner.nextLine();
 
             if(userInput == 1){
-                allProduct(username, password);
+                allProduct(dataSource);
             }else if(userInput == 2){
-                allCustomer(username, password);
+                allCustomer(dataSource);
             }else if(userInput == 3){
-                allCategories(username, password);
+                allCategories(dataSource);
             }
         }while(userInput != 0);
     }
 
-    public static void allProduct(String username, String password) {
-        ResultSet resultSet = null;
-        PreparedStatement preparedStatement = null;
-        Connection connection = null;
-
-        try{
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/northwind", username, password);
-
-            preparedStatement = connection.prepareStatement("SELECT * FROM products;");
-
-            resultSet = preparedStatement.executeQuery();
-
+    public static void allProduct(DataSource dataSource) {
+        try(
+                Connection connection = dataSource.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM products;");
+                ResultSet resultSet = preparedStatement.executeQuery();
+        ){
             while (resultSet.next()) {
                 String productId = resultSet.getString("ProductID");
                 String productName = resultSet.getString("ProductName");
                 String unitPrice = resultSet.getString("UnitPrice");
                 String unitInStock = resultSet.getString("UnitsInStock");
                 System.out.println("Product Id: " + productId);
-                System.out.println("Name:     " + productName );
-                System.out.println("Price:     " + unitPrice );
-                System.out.println("Stock:     " + unitInStock );
+                System.out.println("Name:       " + productName );
+                System.out.println("Price:      " + unitPrice );
+                System.out.println("Stock:      " + unitInStock );
                 System.out.println("---------------------------");
             }
         }catch(SQLException e){
             e.printStackTrace();
         }
-        finally{
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
-    public static void allCustomer(String username, String password){
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        Connection connection = null;
-
-        try{
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/northwind", username, password);
-
-            preparedStatement = connection.prepareStatement("SELECT * FROM Customers;");
-
-            resultSet = preparedStatement.executeQuery();
-
+    public static void allCustomer(DataSource dataSource){
+        try(
+                Connection connection = dataSource.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Customers;");
+                ResultSet resultSet = preparedStatement.executeQuery();
+        ){
             while (resultSet.next()) {
                 String contactName = resultSet.getString("ContactName");
                 String companyName = resultSet.getString("CompanyName");
@@ -122,37 +93,16 @@ public class Main {
         }catch(SQLException e){
             e.printStackTrace();
         }
-        finally{
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
-    public static void allCategories(String userName, String password){
+    public static void allCategories(DataSource dataSource){
         try(
-                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/northwind", userName, password);
+                Connection connection = dataSource.getConnection();
         ){
-            try(PreparedStatement preparedStatement = connection.prepareStatement("SELECT CategoryID, CategoryName FROM northwind.Categories;");
-                ResultSet resultSet = preparedStatement.executeQuery();){
+            try(
+                PreparedStatement preparedStatement = connection.prepareStatement("SELECT CategoryID, CategoryName FROM northwind.Categories;");
+                ResultSet resultSet = preparedStatement.executeQuery()
+            ){
                 System.out.println("\nAll Categories");
                 while(resultSet.next()){
                     String categoryId = resultSet.getString("CategoryID");
