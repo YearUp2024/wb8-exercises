@@ -2,10 +2,7 @@ package com.pluralsight;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Scanner;
 
 public class Main {
@@ -85,12 +82,16 @@ public class Main {
             preparedStatement.setString(2, actorLatName);
 
             try(ResultSet resultSet = preparedStatement.executeQuery()){
-                System.out.println("\n-------------------------------------");
-                while(resultSet.next()){
-                    String movieTitle = resultSet.getString("title");
-                    System.out.println(movieTitle);
+                if(resultSet.next()){
+                    System.out.println("\n-------------------------------------");
+                    do{
+                        String movieTitle = resultSet.getString("title");
+                        System.out.println(movieTitle);
+                    }while(resultSet.next());
+                    System.out.println("\n-------------------------------------");
+                }else{
+                    System.out.println("No matches!");
                 }
-                System.out.println("\n-------------------------------------");
             }
         }catch(SQLException e){
             e.printStackTrace();
