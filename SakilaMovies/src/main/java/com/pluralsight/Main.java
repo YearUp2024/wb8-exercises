@@ -27,7 +27,8 @@ public class Main {
         int userInput = 0;
         do{
             System.out.println("What do you want to do?");
-            System.out.println("[1] - Find Actor's by Last Name: ");
+            System.out.println("[1] - Find Actor's by Last Name");
+            System.out.println("[2] - Find list of Movies for a Actor");
             System.out.println("[99] - Exit");
             System.out.print("Select from the options: ");
             userInput = scanner.nextInt();
@@ -35,6 +36,8 @@ public class Main {
 
             if(userInput == 1){
                 findActorsByLastName(basicDataSource);
+            }else if(userInput == 2){
+                findMoviesByActorName(basicDataSource);
             }
         }while(userInput != 99);
     }
@@ -57,6 +60,37 @@ public class Main {
                     System.out.println(firstName + " " + lastName);
                     System.out.println("-------------------------------");
                 }
+            }
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    private static void findMoviesByActorName(BasicDataSource basicDataSource) {
+        System.out.print("Enter Actor First Name: ");
+        String actorFirstName = scanner.nextLine();
+        System.out.print("Enter Actor Last Name: ");
+        String actorLatName = scanner.nextLine();
+
+        try(
+                Connection connection = basicDataSource.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "SELECT film.title \n" +
+                        "FROM sakila.film\n" +
+                        "JOIN film_actor ON film_actor.film_id = film.film_id\n" +
+                        "JOIN actor ON actor.actor_id = film_actor.actor_id\n" +
+                        "WHERE actor.first_name = ? AND actor.last_name = ?;");
+        ){
+            preparedStatement.setString(1, actorFirstName);
+            preparedStatement.setString(2, actorLatName);
+
+            try(ResultSet resultSet = preparedStatement.executeQuery()){
+                System.out.println("\n-------------------------------------");
+                while(resultSet.next()){
+                    String movieTitle = resultSet.getString("title");
+                    System.out.println(movieTitle);
+                }
+                System.out.println("\n-------------------------------------");
             }
         }catch(SQLException e){
             e.printStackTrace();
