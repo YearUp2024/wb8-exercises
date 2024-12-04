@@ -60,10 +60,10 @@ public class Main {
                 String productName = resultSet.getString("ProductName");
                 String unitPrice = resultSet.getString("UnitPrice");
                 String unitInStock = resultSet.getString("UnitsInStock");
-                System.out.println("Product Id: " + productId);
-                System.out.println("Name:       " + productName );
-                System.out.println("Price:      " + unitPrice );
-                System.out.println("Stock:      " + unitInStock );
+                System.out.println("Product Id:   " + productId);
+                System.out.println("Name:         " + productName );
+                System.out.println("Price:        " + unitPrice );
+                System.out.println("Stock:        " + unitInStock );
                 System.out.println("---------------------------");
             }
         }catch(SQLException e){
@@ -129,10 +129,10 @@ public class Main {
                         String unitPrice = resultSet1.getString("UnitPrice");
                         String unitInStock = resultSet1.getString("UnitsInStock");
 
-                        System.out.println("Product ID:     " + productId);
-                        System.out.println("Product Name:   " + productName);
-                        System.out.println("Unit Price:     " + unitPrice);
-                        System.out.println("Units In Stock: " + unitInStock);
+                        System.out.println("Product ID:       " + productId);
+                        System.out.println("Product Name:     " + productName);
+                        System.out.println("Unit Price:       " + unitPrice);
+                        System.out.println("Units In Stock:   " + unitInStock);
                         System.out.println("--------------------------");
                     }
                 }
