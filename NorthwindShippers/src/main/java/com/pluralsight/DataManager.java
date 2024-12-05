@@ -89,4 +89,20 @@ public class DataManager {
             e.printStackTrace();
         }
     }
+
+    public void deleateShipper() {
+        int shipperId = Console.PromptForInt("Enter Shipper id: ");
+
+        try(
+                Connection connection = dataSource.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM Shippers WHERE ShipperID = ?");
+        ){
+            preparedStatement.setInt(1, shipperId);
+            int rows = preparedStatement.executeUpdate();
+
+            System.out.printf("Rows deleted %d\n", rows);
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
 }

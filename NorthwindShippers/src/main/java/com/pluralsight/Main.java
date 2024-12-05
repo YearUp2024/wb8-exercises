@@ -10,6 +10,7 @@ public class Main {
         System.out.println("[1] - Add a new Shipper");
         System.out.println("[2] - Display all Shippers");
         System.out.println("[3] - Update Shipper");
+        System.out.println("[4] - Delete Shipper");
         int userOption = Console.PromptForInt("Enter your choice: ");
 
         try(BasicDataSource basicDataSource = dataSource(args)){
@@ -21,6 +22,8 @@ public class Main {
                 dataManager.displayAllShippers();
             }else if(userOption == 3){
                 dataManager.updateShipperInfo();
+            }else if(userOption == 4){
+                dataManager.deleateShipper();
             }
         }catch(SQLException e){
             e.printStackTrace();
