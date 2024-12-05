@@ -68,9 +68,23 @@ public class DataManager {
             preparedStatement.setString(1, shipperName);
             preparedStatement.setString(2, phone);
             preparedStatement.setInt(3, shipperId);
+            preparedStatement.executeUpdate();
 
-            int rowsUpdated = preparedStatement.executeUpdate();
-            System.out.printf("Rows updated: %d\n", rowsUpdated);
+            try(
+                    Connection connection1 = dataSource.getConnection();
+                    PreparedStatement preparedStatement1 = connection1.prepareStatement("SELECT * FROM northwind.Shippers;");
+                    ResultSet resultSet = preparedStatement1.executeQuery();
+            ){
+                System.out.println("All Shippers: ");
+                while(resultSet.next()){
+                    int printShipperId = resultSet.getInt("ShipperId");
+                    String printCompanyName = resultSet.getString("CompanyName");
+                    String printPphone = resultSet.getString("Phone");
+
+                    System.out.println(printShipperId + ": " + printCompanyName + " " + printPphone);
+                    System.out.println("-------------------------------");
+                }
+            }
         }catch(SQLException e){
             e.printStackTrace();
         }
